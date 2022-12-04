@@ -1,17 +1,17 @@
-const express = require("express");
+const express = require('express');
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.get("/", (req, res) => res.type('html').send(html));
+app.get('/', (req, res) => res.type('html').send(html));
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () => console.log(`Carlíta listening on port ${port}!`));
 
 
 const html = `
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Hello from Render!</title>
+    <title>Carlíta</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
       setTimeout(() => {
@@ -52,8 +52,146 @@ const html = `
   </head>
   <body>
     <section>
-      Hello from Render!
+      Hello Carlíta!
     </section>
   </body>
 </html>
-`
+`;
+
+const moment = require('moment');
+const fetch = require('node-fetch');
+
+const Strip = 'https://cdn.discordapp.com/attachments/918753881083748402/918756079364636672/367.png';
+const Gif = 'https://cdn.discordapp.com/attachments/767517518998142976/781647589825052743/discord.gif';
+const ClientToken = 'ODM2OTA4NjI2NjgxNjU5NDMy.GzVjje.EuCSlA-L30QDLYQGmEezGWH8zp9aQ7hw7ymeHI';
+
+const { Client, Partials, GatewayIntentBits, ActivityType, EmbedBuilder } = require('discord.js');
+
+const ClientDiscord = new Client({
+  intents: [
+    GatewayIntentBits.DirectMessageReactions,
+    GatewayIntentBits.DirectMessageTyping,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildBans,
+    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildIntegrations,
+    GatewayIntentBits.GuildInvites,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildMessageTyping,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildPresences,
+    GatewayIntentBits.GuildScheduledEvents,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildWebhooks,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [
+    Partials.User,
+    Partials.Channel,
+    Partials.GuildMember,
+    Partials.Message,
+    Partials.Reaction,
+    Partials.GuildScheduledEvent,
+    Partials.ThreadMember,
+  ],
+  ws: { intents: [
+    'DirectMessageReactions',
+    'DirectMessageTyping',
+    'DirectMessages',
+    'GuildBans',
+    'GuildEmojisAndStickers',
+    'GuildIntegrations',
+    'GuildInvites',
+    'GuildMembers',
+    'GuildMessageReactions',
+    'GuildMessageTyping',
+    'GuildMessages',
+    'GuildPresences',
+    'GuildScheduledEvents',
+    'GuildVoiceStates',
+    'GuildWebhooks',
+    'Guilds',
+    'MessageContent',
+  ] },
+});
+
+/* fetch('https://carlita.onrender.com')
+  .then(() => console.log('Carlita Render Request'))
+  .catch(err => console.error(err));
+
+setInterval(() => {
+  fetch('https://carlita.onrender.com');
+}, 300 * 1000); */
+
+fetch('https://evergreen-shy-doll.glitch.me/')
+  .then(() => console.log('Carlita Glitch Request'))
+  .catch(err => console.error(err));
+
+setInterval(() => {
+  fetch('https://evergreen-shy-doll.glitch.me/');
+}, 300 * 1000);
+
+ClientDiscord.once('ready', async (ready) => {
+
+  const channelLog = ClientDiscord.channels.cache.get('1047522031022903300');
+  const channelChat = ClientDiscord.channels.cache.get('1049013300060491807');
+
+  // November 22, 2022 1:41 PM
+  const date = moment().utc().locale('en').add(2, 'h').format('LLL');
+
+  console.log(date);
+
+  channelLog.send(`${date}`);
+
+  setInterval(() => {
+    channelChat.send(`${date}\nCarlta: Channel Chat`);
+  }, 300 * 1000);
+
+  const ClientCategory = `${date}`;
+
+  ClientDiscord.user.setActivity(ClientCategory, { type: ActivityType.Listening });
+
+  console.log(`Client Discord Ready: ${ready.user.username} #${ready.user.discriminator} / ${ClientDiscord.user.tag}`);
+});
+
+ClientDiscord.on('error', async (err) => {
+  ClientDiscord.user.setPresence({ activities: [{ name: 'Error', type: 3 }], status: 'dnd' })
+    .then(() => console.log(err));
+});
+
+ClientDiscord.on('messageCreate', async (msg) => {
+
+  if (msg.author.bot) return;
+
+  const myPref = '.';
+
+  if (!msg.content.startsWith(myPref)) return;
+  const args = msg.content.slice(myPref.length).toLowerCase().split(/ +/);
+  const command = args.shift().toLowerCase();
+
+  if (command) {
+    ClientDiscord.user.setStatus('online');
+
+    setTimeout(async () => {
+      ClientDiscord.user.setStatus('idle');
+    }, 300 * 1000);
+  }
+
+  if (command === 'ping') {
+
+    const EmbedEn = new EmbedBuilder()
+      .setAuthor({ name: 'Discord', url: 'https://discord.com/' })
+      .setDescription('Discord Ping')
+      .addFields(
+        { name: '\u200B', value: `Ping: ${new Date().getTime() - msg.createdTimestamp} ms`, inline: true },
+      )
+      .setImage(Strip)
+      .setFooter({ text: 'Discord', iconURL: Gif });
+
+    msg.channel.send({ embeds: [EmbedEn] });
+  }
+});
+
+ClientDiscord.login(ClientToken);
