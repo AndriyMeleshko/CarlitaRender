@@ -11,9 +11,12 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "^4.16.3"
+    "discord.js": "^14.6.0",
+    "express": "^4.16.3",
+    "moment": "^2.29.4",
+    "node-fetch": "^2.6.7"
   },
   "engines": {
-    "node": ">=14"
+    "node": "16.x"
   }
 }
