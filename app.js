@@ -2,10 +2,6 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.get('/', (req, res) => res.type('html').send(html));
-
-app.listen(port, () => console.log(`Carlíta listening on port ${port}!`));
-
 
 const html = `
 <!DOCTYPE html>
@@ -57,3 +53,136 @@ const html = `
   </body>
 </html>
 `;
+
+app.get('/', (req, res) => res.type('html').send(html));
+
+app.listen(port, () => console.log(`Carlíta listening on port: ${port}`));
+
+const moment = require('moment');
+const fetch = require('node-fetch');
+
+const env = process.env;
+
+const { Client, Partials, GatewayIntentBits, ActivityType, EmbedBuilder } = require('discord.js');
+
+const ClientDiscord = new Client({
+  intents: [
+    GatewayIntentBits.DirectMessageReactions,
+    GatewayIntentBits.DirectMessageTyping,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildBans,
+    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildIntegrations,
+    GatewayIntentBits.GuildInvites,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildMessageTyping,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildPresences,
+    GatewayIntentBits.GuildScheduledEvents,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildWebhooks,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [
+    Partials.User,
+    Partials.Channel,
+    Partials.GuildMember,
+    Partials.Message,
+    Partials.Reaction,
+    Partials.GuildScheduledEvent,
+    Partials.ThreadMember,
+  ],
+  ws: { intents: [
+    'DirectMessageReactions',
+    'DirectMessageTyping',
+    'DirectMessages',
+    'GuildBans',
+    'GuildEmojisAndStickers',
+    'GuildIntegrations',
+    'GuildInvites',
+    'GuildMembers',
+    'GuildMessageReactions',
+    'GuildMessageTyping',
+    'GuildMessages',
+    'GuildPresences',
+    'GuildScheduledEvents',
+    'GuildVoiceStates',
+    'GuildWebhooks',
+    'Guilds',
+    'MessageContent',
+  ] },
+});
+
+fetch(`${env.ClientUrl}`)
+  .then(() => console.log('Carlita Request: G'))
+  .catch(err => console.error(err));
+
+setInterval(() => {
+  fetch(`${env.ClientUrl}`);
+}, 300 * 1000);
+
+ClientDiscord.once('ready', async (ready) => {
+
+  const channelChat = ClientDiscord.channels.cache.get(`${env.RenderChat}`);
+  const channelLog = ClientDiscord.channels.cache.get(`${env.RenderLog}`);
+
+  const DateReady = moment().utc().locale('en').add(2, 'h').format('h:mm A, MMMM D, dddd, YYYY');
+
+  console.log(DateReady);
+
+  channelLog.send(`${DateReady}`);
+
+  const ClientCategory = `${DateReady}`;
+
+  ClientDiscord.user.setActivity(ClientCategory, { type: ActivityType.Listening });
+
+  setInterval(() => {
+    const DateInterval = moment().utc().locale('en').add(2, 'h').format('h:mm A, MMMM D, dddd, YYYY');
+
+    channelChat.send(`${DateInterval}\nCarlta: Channel Chat\n.`);
+  }, 300 * 1000);
+
+  console.log(`Client Discord Ready: ${ready.user.username} #${ready.user.discriminator} / ${ClientDiscord.user.tag}`);
+});
+
+ClientDiscord.on('error', async (err) => {
+  ClientDiscord.user.setPresence({ activities: [{ name: 'Error', type: 3 }], status: 'dnd' })
+    .then(() => console.log(err));
+});
+
+ClientDiscord.on('messageCreate', async (msg) => {
+
+  if (msg.author.bot) return;
+
+  const myPref = env.ClientPrefix;
+
+  if (!msg.content.startsWith(myPref)) return;
+  const args = msg.content.slice(myPref.length).toLowerCase().split(/ +/);
+  const command = args.shift().toLowerCase();
+
+  if (command) {
+    ClientDiscord.user.setStatus('online');
+
+    setTimeout(async () => {
+      ClientDiscord.user.setStatus('idle');
+    }, 300 * 1000);
+  }
+
+  if (command === 'ping') {
+
+    const EmbedEn = new EmbedBuilder()
+      .setAuthor({ name: 'Discord', url: 'https://discord.com/' })
+      .setDescription('Discord Ping')
+      .addFields(
+        { name: '\u200B', value: `Ping: ${new Date().getTime() - msg.createdTimestamp} ms`, inline: true },
+      )
+      .setImage(env.Strip)
+      .setFooter({ text: 'Discord', iconURL: env.Gif });
+
+    msg.channel.send({ embeds: [EmbedEn] });
+  }
+});
+
+ClientDiscord.login(env.ClientToken);
