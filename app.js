@@ -55,13 +55,31 @@ const html = `
 `;
 
 app.get('/', (req, res) => res.type('html').send(html));
-
 app.listen(port, () => console.log(`Carlíta listening on port: ${port}`));
 
+// Discord
+
+const fs = require('fs');
 const moment = require('moment');
 const fetch = require('node-fetch');
 
+if (!fs.existsSync('./node_modules/dotenv')) {
+  console.log('Missing Module: dotenv');
+}
+else {
+  require('dotenv').config();
+  console.log('Running Module: dotenv');
+}
+
 const env = process.env;
+
+fetch(`${env.ClientUrl}`)
+  .then(() => console.log('Request: Glitch'))
+  .catch(err => console.error(err));
+
+setInterval(() => {
+  fetch(`${env.ClientUrl}`);
+}, 300 * 1000);
 
 const { Client, Partials, GatewayIntentBits, ActivityType, EmbedBuilder } = require('discord.js');
 
@@ -115,36 +133,23 @@ const ClientDiscord = new Client({
   ] },
 });
 
-fetch(`${env.ClientUrl}`)
-  .then(() => console.log('Carlita Request: G'))
-  .catch(err => console.error(err));
-
-setInterval(() => {
-  fetch(`${env.ClientUrl}`);
-}, 300 * 1000);
-
 ClientDiscord.once('ready', async (ready) => {
-
-  const channelChat = ClientDiscord.channels.cache.get(`${env.RenderChat}`);
-  const channelLog = ClientDiscord.channels.cache.get(`${env.RenderLog}`);
 
   const DateReady = moment().utc().locale('en').add(2, 'h').format('h:mm A, MMMM D, dddd, YYYY');
 
   console.log(DateReady);
 
-  channelLog.send(`${DateReady}`);
-
   const ClientCategory = `${DateReady}`;
 
   ClientDiscord.user.setActivity(ClientCategory, { type: ActivityType.Listening });
 
-  setInterval(() => {
-    const DateInterval = moment().utc().locale('en').add(2, 'h').format('h:mm A, MMMM D, dddd, YYYY');
-
-    channelChat.send(`${DateInterval}\nCarlta: Channel Chat\n.`);
-  }, 300 * 1000);
-
   console.log(`Client Discord Ready: ${ready.user.username} #${ready.user.discriminator} / ${ClientDiscord.user.tag}`);
+
+  const channelLog = ClientDiscord.channels.cache.get(`${env.RenderLog}`);
+
+  if (!channelLog) return;
+
+  channelLog.send(`${DateReady}`);
 });
 
 ClientDiscord.on('error', async (err) => {
