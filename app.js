@@ -59,7 +59,7 @@ app.listen(port, () => console.log(`Carlíta listening on port: ${port}`));
 
 // Discord
 
-const fs = require('fs');
+const fs = require('node:fs');
 const moment = require('moment');
 const fetch = require('node-fetch');
 
