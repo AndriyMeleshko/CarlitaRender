@@ -64,11 +64,11 @@ const moment = require('moment');
 const fetch = require('node-fetch');
 
 if (!fs.existsSync('./node_modules/dotenv')) {
-  console.log('Missing Module: dotenv');
+  console.log('Missing module: dotenv');
 }
 else {
   require('dotenv').config();
-  console.log('Running Module: dotenv');
+  console.log('Running module: dotenv');
 }
 
 const env = process.env;
@@ -81,69 +81,25 @@ setInterval(() => {
   fetch(`${env.ClientUrl}`);
 }, 300 * 1000);
 
-const { Client, Partials, GatewayIntentBits, ActivityType, EmbedBuilder } = require('discord.js');
+const { Client, Events, GatewayIntentBits, ActivityType, EmbedBuilder } = require('discord.js');
 
-const ClientDiscord = new Client({
-  intents: [
-    GatewayIntentBits.DirectMessageReactions,
-    GatewayIntentBits.DirectMessageTyping,
-    GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.GuildBans,
-    GatewayIntentBits.GuildEmojisAndStickers,
-    GatewayIntentBits.GuildIntegrations,
-    GatewayIntentBits.GuildInvites,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.GuildMessageTyping,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.GuildPresences,
-    GatewayIntentBits.GuildScheduledEvents,
-    GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.GuildWebhooks,
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.MessageContent,
-  ],
-  partials: [
-    Partials.User,
-    Partials.Channel,
-    Partials.GuildMember,
-    Partials.Message,
-    Partials.Reaction,
-    Partials.GuildScheduledEvent,
-    Partials.ThreadMember,
-  ],
-  ws: { intents: [
-    'DirectMessageReactions',
-    'DirectMessageTyping',
-    'DirectMessages',
-    'GuildBans',
-    'GuildEmojisAndStickers',
-    'GuildIntegrations',
-    'GuildInvites',
-    'GuildMembers',
-    'GuildMessageReactions',
-    'GuildMessageTyping',
-    'GuildMessages',
-    'GuildPresences',
-    'GuildScheduledEvents',
-    'GuildVoiceStates',
-    'GuildWebhooks',
-    'Guilds',
-    'MessageContent',
-  ] },
-});
+const ClientDiscord = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-ClientDiscord.once('ready', async (ready) => {
+ClientDiscord.once(Events.ClientReady, async (c) => {
 
   const DateReady = moment().utc().locale('en').add(2, 'h').format('h:mm A, MMMM D, dddd, YYYY');
 
   console.log(DateReady);
 
-  const ClientCategory = `${DateReady}`;
+  // const ClientCategory = `${DateReady}`;
 
-  ClientDiscord.user.setActivity(ClientCategory, { type: ActivityType.Listening });
+  // ClientDiscord.user.setActivity(ClientCategory, { type: ActivityType.Listening });
 
-  console.log(`Client Discord Ready: ${ready.user.username} #${ready.user.discriminator} / ${ClientDiscord.user.tag}`);
+  const Result = 'Render';
+
+  ClientDiscord.user.setActivity(Result, { type: ActivityType.Competing });
+
+  console.log(`Client Discord Ready: ${c.user.username} #${c.user.discriminator} / ${c.user.tag}`);
 
   const channelLog = ClientDiscord.channels.cache.get(`${env.RenderLog}`);
 
@@ -157,8 +113,7 @@ ClientDiscord.on('error', async (err) => {
     .then(() => console.log(err));
 });
 
-ClientDiscord.on('messageCreate', async (msg) => {
-
+ClientDiscord.on(Events.MessageCreate, async (msg) => {
   if (msg.author.bot) return;
 
   const myPref = env.ClientPrefix;
