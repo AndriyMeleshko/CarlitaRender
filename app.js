@@ -95,9 +95,9 @@ ClientDiscord.once(Events.ClientReady, async (c) => {
 
   // ClientDiscord.user.setActivity(ClientCategory, { type: ActivityType.Listening });
 
-  const Result = 'Render';
+  const result = 'Render';
 
-  ClientDiscord.user.setActivity(Result, { type: ActivityType.Competing });
+  ClientDiscord.user.setActivity(result, { type: ActivityType.Custom });
 
   console.log(`Client Discord Ready: ${c.user.username} #${c.user.discriminator} / ${c.user.tag}`);
 
